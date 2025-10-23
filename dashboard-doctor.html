@@ -1,0 +1,337 @@
+﻿﻿
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Doctor Dashboard — Graphene Trace</title>
+    <style>
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 18px;
+            color: #0f172a;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin: 6px 0 10px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .top-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 6px 20px rgba(12,20,40,0.06);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            font-size: 14px;
+            padding: 8px;
+            border-bottom: 1px solid #eef2f8;
+            text-align: left;
+        }
+
+        th {
+            color: #475569;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+            .btn:hover {
+                background: #1e4fd3;
+            }
+
+        .btn-secondary {
+            background: #475569;
+        }
+
+            .btn-secondary:hover {
+                background: #334155;
+            }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .profile-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+
+        ul {
+            margin: 6px 0 10px 16px;
+        }
+
+        /* Review reply area */
+        .reply-box {
+            margin-top: 10px;
+            display: none;
+        }
+
+            .reply-box textarea {
+                width: 100%;
+                height: 60px;
+                border-radius: 6px;
+                border: 1px solid #d1d5db;
+                padding: 8px;
+                font-family: inherit;
+                resize: none;
+            }
+
+        .comment-box {
+            display: none;
+            margin-top: 10px;
+        }
+
+            .comment-box textarea {
+                width: 100%;
+                height: 60px;
+                border-radius: 6px;
+                border: 1px solid #d1d5db;
+                padding: 8px;
+                font-family: inherit;
+                resize: none;
+            }
+
+        .comment {
+            margin-top: 8px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 13px;
+        }
+
+            .comment strong {
+                color: #2563eb;
+            }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>👩‍⚕️ Doctor Dashboard</h1>
+        <div class="top-buttons">
+            <button class="btn" onclick="bookAppointment()">📘 Book</button>
+            <button class="btn btn-secondary" onclick="openHelp()">❓ Help</button>
+            <button class="btn btn-secondary" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+    <p>Welcome back, Doctor! Here’s your professional overview.</p>
+
+    <div class="grid">
+        <!-- Doctor Profile -->
+        <div class="card">
+            <h2>👨‍⚕️ Doctor Profile</h2>
+            <div class="profile-grid">
+                <div class="profile-photo">D</div>
+                <div>
+                    <strong>Dr. Emma Williams</strong><br />
+                    Cardiologist, MD<br />
+                    <span>Email:</span> emma.williams@graphenetrace.com<br />
+                    <span>Contact:</span> +1 555-234-7788<br />
+                    <span>Language:</span> English, Spanish<br />
+                    <span>Experience:</span> 12 Years
+                </div>
+            </div>
+            <div class="section-title">Biography</div>
+            <p>Dr. Emma Williams is a board-certified cardiologist with 12 years of experience in interventional and preventive cardiology. She is passionate about patient-centered care and emerging digital health technologies.</p>
+
+            <div class="section-title">Education</div>
+            <ul>
+                <li>MD, Johns Hopkins University (2012)</li>
+                <li>Residency, Stanford Medical Center (2016)</li>
+            </ul>
+
+            <div class="section-title">Achievements</div>
+            <ul>
+                <li>Top 100 Cardiology Innovators (2023)</li>
+                <li>Best Doctor Award — California (2022)</li>
+            </ul>
+        </div>
+
+        <!-- Reviews & Ratings -->
+        <div class="card">
+            <h2>⭐ Reviews</h2>
+            <div id="reviews">
+                <p>“Dr. Williams was incredibly attentive and thorough.” — <em>John Doe</em></p>
+                <p>“She explained everything clearly and followed up personally.” — <em>Mary Lee</em></p>
+            </div>
+            <button class="btn" onclick="toggleReplyBox()">Reply to Reviews</button>
+
+            <div class="reply-box" id="replyBox">
+                <textarea id="replyText" placeholder="Write your reply..."></textarea>
+                <br />
+                <button class="btn" style="margin-top:6px;" onclick="submitReply()">Submit Reply</button>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="grid">
+        <!-- Active Patients -->
+        <div class="card">
+            <h2>Active Patients</h2>
+            <table>
+                <tr><th>Patient</th><th>Last Reading</th><th>Peak</th><th>Action</th></tr>
+                <tr><td>John Doe</td><td>2025-10-08</td><td>187</td><td><button class="btn" onclick="openPatient('John Doe')">View</button></td></tr>
+                <tr><td>Mary Lee</td><td>2025-10-07</td><td>204 ⚠️</td><td><button class="btn" onclick="openPatient('Mary Lee')">View</button></td></tr>
+                <tr><td>Arjun Patel</td><td>2025-10-06</td><td>165</td><td><button class="btn" onclick="openPatient('Arjun Patel')">View</button></td></tr>
+            </table>
+            <div id="patientComments"></div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="card">
+            <h2>⚠️ Alerts</h2>
+            <p>⚠️ Mary Lee has high pressure (PPI 204)</p>
+            <p>⚠️ Arjun Patel sensor inactive for 3 days</p>
+        </div>
+    </div>
+
+    <br />
+
+    <div class="card">
+        <h2>🌙 After-Hours Appointments</h2>
+        <table>
+            <tr><th>Date</th><th>Time</th><th>Patient</th><th>Action</th></tr>
+            <tr><td>2025-10-12</td><td>7:00 PM</td><td>James Bond</td><td><button class="btn" onclick="confirmAppointment('James Bond')">Confirm</button></td></tr>
+            <tr><td>2025-10-13</td><td>6:30 PM</td><td>Lisa Tran</td><td><button class="btn" onclick="confirmAppointment('Lisa Tran')">Confirm</button></td></tr>
+        </table>
+    </div>
+
+    <!-- Hidden comment box for patient -->
+    <div class="comment-box" id="commentBox">
+        <h3>💬 Leave a comment for <span id="commentPatientName"></span></h3>
+        <textarea id="commentText" placeholder="Write your comment..."></textarea>
+        <br />
+        <button class="btn" style="margin-top:6px;" onclick="submitComment()">Submit Comment</button>
+    </div>
+
+    <script>
+    const doctorName = "Dr. Emma Williams";
+
+    // --- Review Reply ---
+    function toggleReplyBox() {
+      const box = document.getElementById("replyBox");
+      box.style.display = box.style.display === "block" ? "none" : "block";
+    }
+
+    function submitReply() {
+      const reply = document.getElementById("replyText").value.trim();
+      if (!reply) {
+        alert("Please enter a reply before submitting.");
+        return;
+      }
+      const reviewsDiv = document.getElementById("reviews");
+      const replyEl = document.createElement("p");
+      replyEl.classList.add("comment");
+      replyEl.innerHTML = `<strong>${doctorName}:</strong> ${reply}`;
+      reviewsDiv.appendChild(replyEl);
+
+      document.getElementById("replyText").value = "";
+      document.getElementById("replyBox").style.display = "none";
+    }
+
+    // --- Patient Comments ---
+    let currentPatient = "";
+
+    function openPatient(patientName) {
+      currentPatient = patientName;
+      document.getElementById("commentPatientName").innerText = patientName;
+      document.getElementById("commentBox").style.display = "block";
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function submitComment() {
+      const text = document.getElementById("commentText").value.trim();
+      if (!text) {
+        alert("Please enter a comment first.");
+        return;
+      }
+
+      const patientDiv = document.getElementById("patientComments");
+      const commentEl = document.createElement("div");
+      commentEl.classList.add("comment");
+      const time = new Date().toLocaleString();
+      commentEl.innerHTML = `<strong>${doctorName}</strong> (${time}): ${text} <br/><em>For patient: ${currentPatient}</em>`;
+      patientDiv.appendChild(commentEl);
+
+      document.getElementById("commentText").value = "";
+      document.getElementById("commentBox").style.display = "none";
+    }
+
+    // --- Other Buttons ---
+    function confirmAppointment(patientName) {
+      alert(`Appointment with ${patientName} confirmed successfully!`);
+    }
+
+    function bookAppointment() {
+      alert("Booking appointment function will open here.");
+    }
+
+    function openHelp() {
+      alert("Help section opens here.");
+    }
+
+    function logout() {
+      const confirmLogout = confirm("Are you sure you want to logout?");
+      if (confirmLogout) {
+        alert("You have been logged out successfully.");
+      }
+    }
+    </script>
+</body>
+</html>

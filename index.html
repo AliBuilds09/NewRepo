@@ -1,0 +1,145 @@
+﻿﻿
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Graphene Trace — Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Inter, Arial, sans-serif;
+            background: #f5f7fb;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .login-card {
+            background: white;
+            padding: 32px 28px;
+            border-radius: 16px;
+            box-shadow: 0 8px 28px rgba(12, 20, 40, 0.08);
+            width: 360px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 6px;
+            font-size: 22px;
+        }
+
+        p.sub {
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #dbe3f0;
+            font-size: 15px;
+            outline: none;
+        }
+
+            input:focus, select:focus {
+                border-color: #2563eb;
+                box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+            }
+
+        button {
+            width: 100%;
+            padding: 10px 0;
+            background: #2563eb;
+            color: white;
+            border: 0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #1e4fd3;
+            }
+
+        .register-link {
+            margin-top: 16px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+            .register-link a {
+                color: #2563eb;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                .register-link a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>Graphene Trace</h1>
+        <p class="sub">Sign in to your role dashboard</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input id="username" type="text" placeholder="Enter username" required />
+            </div>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input id="password" type="password" placeholder="••••••••" required />
+            </div>
+
+            <div class="input-group">
+                <label for="role">Select Role</label>
+                <select id="role" required>
+                    <option value="">Choose role</option>
+                    <option value="patient">Patient</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p class="register-link">
+            Don’t have an account? <a href="register.html">Register here</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', e => {
+            e.preventDefault();
+            const role = document.getElementById('role').value;
+            if (!role) return alert('Please choose a role.');
+
+            if (role === 'doctor') window.location.href = 'dashboard-doctor.html';
+            else if (role === 'admin') window.location.href = 'dashboard-admin.html';
+            else window.location.href = 'dashboard-patient.html';
+        });
+    </script>
+</body>
+</html>

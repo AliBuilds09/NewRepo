@@ -1,0 +1,511 @@
+﻿﻿
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Graphene Trace — Patient Dashboard</title>
+    <style>
+        body {
+            font-family: Inter, Arial, sans-serif;
+            margin: 0;
+            background: #f5f7fb;
+            color: #0f172a;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 4px 12px rgba(12,20,40,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+            .navbar h1 {
+                font-size: 18px;
+                margin: 0;
+                color: #0f172a;
+            }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: #2563eb;
+            border: 0;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.25s;
+        }
+
+            .nav-btn:hover {
+                background: #1e4fd3;
+            }
+
+        .app {
+            display: grid;
+            grid-template-columns: 560px 340px;
+            gap: 18px;
+            padding: 18px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 6px 20px rgba(12,20,40,0.06);
+        }
+
+        h2 {
+            margin: 4px 0 8px;
+            font-size: 18px;
+        }
+
+        #heatmapCanvas {
+            width: 512px;
+            height: 512px;
+            image-rendering: pixelated;
+            border-radius: 8px;
+            background: #111;
+        }
+
+        .metrics {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .metric {
+            flex: 1;
+            background: #fbfdff;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 0;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+        }
+
+        input[type=range] {
+            width: 100%;
+        }
+
+        .small {
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .rightcol .section {
+            margin-bottom: 12px;
+        }
+
+        .chart {
+            height: 120px;
+            background: linear-gradient(180deg,#fff,#fbfdff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+        }
+
+        .commentbox {
+            width: 100%;
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #e6eef8;
+        }
+
+        /* Doctor reply styles */
+        .reply {
+            margin-left: 12px;
+            margin-top: 6px;
+            padding-left: 8px;
+            border-left: 2px solid #cbd5e1;
+            color: #1e3a8a;
+            font-size: 13px;
+        }
+
+        .reply-actions {
+            margin-top: 6px;
+        }
+
+        .reply-input {
+            margin-top: 6px;
+            padding-left: 12px;
+        }
+
+            .reply-input textarea {
+                width: 100%;
+                box-sizing: border-box;
+                border-radius: 6px;
+                padding: 6px;
+                border: 1px solid #dbeafe;
+            }
+
+            .reply-input .btn {
+                margin-top: 6px;
+                margin-right: 6px;
+                padding: 6px 10px;
+                border-radius: 6px;
+                border: 0;
+                cursor: pointer;
+                color: white;
+            }
+
+        .reply-send {
+            background: #16a34a;
+        }
+
+        .reply-cancel {
+            background: #ef4444;
+        }
+
+        .reply-btn {
+            background: #f1f5f9;
+            color: #2563eb;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* small Switch Role button visual */
+        #roleToggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 6px 10px;
+            background: #16a34a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            z-index: 99;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- quick switch role for testing -->
+    <button id="roleToggle" onclick="toggleRole()">Switch Role: PATIENT</button>
+
+    <div class="navbar">
+        <h1>👤 Patient Dashboard</h1>
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="openProfile()">Profile</button>
+            <button class="nav-btn" onclick="openRecords()">Records</button>
+            <button class="nav-btn" onclick="openHelp()">Help</button>
+            <button class="nav-btn" onclick="openBooking()">Book</button>
+            <button class="nav-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="app">
+        <div class="card">
+            <h2>Live Heatmap</h2>
+            <canvas id="heatmapCanvas" width="512" height="512"></canvas>
+            <div class="metrics">
+                <div class="metric">
+                    <div class="small">Peak Pressure Index</div>
+                    <div id="ppi" style="font-weight:700; font-size:20px">—</div>
+                </div>
+                <div class="metric">
+                    <div class="small">Contact Area %</div>
+                    <div id="ca" style="font-weight:700; font-size:20px">—</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="playBtn">Play</button>
+                <button id="randomBtn">Random Frames</button>
+                <div style="flex:1">
+                    <input id="slider" type="range" min="0" max="9" value="0" />
+                </div>
+                <div style="width:90px;text-align:right" class="small">Frame <span id="frameIdx">0</span>/9</div>
+            </div>
+
+            <div style="margin-top:8px" class="small">
+                Tip: this mockup simulates 10 frames (32×32). Use <strong>Random Frames</strong> then press <strong>Play</strong>.
+            </div>
+        </div>
+
+        <div class="rightcol">
+            <div class="card section">
+                <h2>Timeline (metrics)</h2>
+                <div id="chartPeak" class="chart">Peak Pressure (quick view)</div>
+                <div id="chartArea" class="chart" style="margin-top:8px">Contact Area % (quick view)</div>
+            </div>
+
+            <div class="card section">
+                <h2>Alerts</h2>
+                <div id="alerts" class="small">No alerts</div>
+            </div>
+
+            <div class="card section">
+                <h2>Comments (timestamped)</h2>
+                <div id="threads" style="min-height:80px; max-height:140px; overflow:auto; margin-bottom:8px"></div>
+                <textarea id="commentText" class="commentbox" rows="3" placeholder="Write a comment for current frame..."></textarea>
+                <div style="display:flex; justify-content:space-between; margin-top:6px; align-items:center">
+                    <div class="small">Current frame: <span id="frameTs">0</span></div>
+                    <button id="postComment">Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // NAVBAR functions (unchanged)
+    function openProfile(){ alert("Opening profile page..."); }
+    function openRecords(){ alert("Opening medical records..."); }
+    function openHelp(){ alert("Contact support at: support@graphenetrace.com"); }
+    function openBooking(){ alert("Redirecting to appointment booking..."); }
+    function logout(){ alert("Logging out..."); /* window.location.href = 'login.html'; */ }
+
+    // USER ROLE: default patient
+    let userRole = "patient"; // "patient" or "doctor"
+    function toggleRole(){
+      userRole = (userRole === "doctor") ? "patient" : "doctor";
+      document.getElementById('roleToggle').textContent = "Switch Role: " + userRole.toUpperCase();
+      alert("Switched to: " + userRole.toUpperCase());
+    }
+
+    // HEATMAP logic (kept as before)
+    const ROWS=32, COLS=32, NUM_FRAMES=10;
+    let frames=[], frameIdx=0, playing=false, playTimer=null;
+    const canvas=document.getElementById('heatmapCanvas');
+    const ctx=canvas.getContext('2d');
+    const ppiEl=document.getElementById('ppi');
+    const caEl=document.getElementById('ca');
+    const slider=document.getElementById('slider');
+    const frameIdxEl=document.getElementById('frameIdx');
+    const alertsEl=document.getElementById('alerts');
+    const frameTsEl=document.getElementById('frameTs');
+    const threadsEl=document.getElementById('threads');
+    const contactThreshold=10, minRegionSize=10, peakThresholdAlert=200;
+
+    function makeEmptyFrame(){
+      const f=new Array(ROWS);
+      for(let r=0;r<ROWS;r++){ f[r]=new Array(COLS).fill(0); }
+      return f;
+    }
+    function randomFrame(){
+      const f=makeEmptyFrame();
+      for(let r=0;r<ROWS;r++){
+        for(let c=0;c<COLS;c++){
+          const p=Math.random();
+          if(p>0.92) f[r][c]=Math.floor(180+Math.random()*75);
+          else if(p>0.86) f[r][c]=Math.floor(80+Math.random()*100);
+          else if(p>0.7) f[r][c]=Math.floor(20+Math.random()*60);
+          else f[r][c]=Math.floor(Math.random()*6);
+        }
+      }
+      return f;
+    }
+    function valueToColor(v){
+      if(v<=0) return '#071025';
+      const t=Math.min(1,v/255);
+      const r=Math.floor(255*Math.pow(t,0.9));
+      const g=Math.floor(200*Math.pow(Math.max(0,t-0.4)/0.6,0.9));
+      const b=Math.floor(255*Math.pow(1-t,1));
+      return `rgb(${r},${g},${b})`;
+    }
+    function renderHeatmap(frame){
+      const cellW=canvas.width/COLS, cellH=canvas.height/ROWS;
+      for(let r=0;r<ROWS;r++){
+        for(let c=0;c<COLS;c++){
+          ctx.fillStyle=valueToColor(frame[r][c]);
+          ctx.fillRect(Math.floor(c*cellW), Math.floor(r*cellH), Math.ceil(cellW), Math.ceil(cellH));
+        }
+      }
+    }
+    function computeContactAreaPercent(frame){
+      let cnt=0;
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(frame[r][c]>=contactThreshold) cnt++;
+      return (cnt*100.0)/(ROWS*COLS);
+    }
+    function computePeakPressureIndex(frame){
+      const visited=Array.from({length:ROWS}, ()=>Array(COLS).fill(false));
+      const dr=[-1,1,0,0,-1,-1,1,1], dc=[0,0,-1,1,-1,1,-1,1];
+      let best=0;
+      for(let r=0;r<ROWS;r++){
+        for(let c=0;c<COLS;c++){
+          if(!visited[r][c] && frame[r][c]>=contactThreshold){
+            let size=0, maxVal=0;
+            const q=[[r,c]];
+            visited[r][c]=true;
+            while(q.length){
+              const [rr,cc]=q.shift();
+              size++;
+              if(frame[rr][cc]>maxVal) maxVal=frame[rr][cc];
+              for(let k=0;k<8;k++){
+                const nr=rr+dr[k], nc=cc+dc[k];
+                if(nr>=0 && nr<ROWS && nc>=0 && nc<COLS && !visited[nr][nc] && frame[nr][nc]>=contactThreshold){
+                  visited[nr][nc]=true;
+                  q.push([nr,nc]);
+                }
+              }
+            }
+            if(size >= minRegionSize && maxVal > best) best = maxVal;
+          }
+        }
+      }
+      return best;
+    }
+
+    // Safe UI update (handles empty frames)
+    function updateUI(){
+      if(!frames || frames.length === 0){
+        ppiEl.textContent = '—';
+        caEl.textContent = '—';
+        alertsEl.innerHTML = 'No alerts';
+        frameIdxEl.textContent = 0;
+        frameTsEl.textContent = 0;
+        slider.max = Math.max(0, NUM_FRAMES - 1);
+        slider.value = 0;
+        return;
+      }
+      if(frameIdx < 0) frameIdx = 0;
+      if(frameIdx >= frames.length) frameIdx = frames.length - 1;
+
+      const frame = frames[frameIdx];
+      renderHeatmap(frame);
+      const ca = computeContactAreaPercent(frame).toFixed(1);
+      const ppi = computePeakPressureIndex(frame);
+      ppiEl.textContent = ppi===0 ? '—' : ppi;
+      caEl.textContent = ca + '%';
+
+      slider.max = Math.max(0, frames.length - 1);
+      slider.value = frameIdx;
+      frameIdxEl.textContent = frameIdx;
+      frameTsEl.textContent = frameIdx;
+
+      // Alert: check current frame's PPI and show message
+      if(ppi >= peakThresholdAlert){
+        alertsEl.innerHTML = `<span style='color:#b91c1c;font-weight:600'>⚠️ High peak pressure detected (PPI=${ppi}) at frame ${frameIdx}</span>`;
+      } else {
+        alertsEl.innerHTML = "No alerts";
+        alertsEl.style.color = "#0f172a";
+      }
+    }
+
+    // COMMENT system with doctor/patient behavior
+    document.getElementById('postComment').addEventListener('click', ()=>{
+      const txt = document.getElementById('commentText').value.trim();
+      if(!txt) return alert('Write a short comment');
+
+      const d = document.createElement('div');
+      d.style.padding = '6px 8px';
+      d.style.borderBottom = '1px solid #eef6ff';
+
+      const author = (userRole === "doctor") ? "Doctor" : "Me";
+      const color  = (userRole === "doctor") ? "#1e3a8a" : "#0f172a";
+
+      d.innerHTML = `
+        <div><strong style="color:${color}">${author}</strong> <span class="small" style="color:#64748b">@frame ${frameIdx}</span></div>
+        <div style="margin-top:6px">${escapeHtml(txt)}</div>
+        <div class="reply-actions" style="margin-top:6px">
+          ${userRole === "patient" ? `<button class="reply-btn">Reply (Doctor)</button>` : ''}
+        </div>
+        <div class="replies"></div>
+      `;
+      threadsEl.prepend(d);
+      document.getElementById('commentText').value = '';
+    });
+
+    // delegated replies handler (inline input, send/cancel)
+    threadsEl.addEventListener('click', (e) => {
+      const target = e.target;
+
+      // open inline reply input
+      if(target.classList.contains('reply-btn')){
+        const commentRoot = target.closest('[style*="border-bottom"]');
+        if(commentRoot.querySelector('.reply-input')) return; // already open
+
+        const inputDiv = document.createElement('div');
+        inputDiv.className = 'reply-input';
+        inputDiv.innerHTML = `
+          <textarea rows="2" placeholder="Write reply..." class="commentbox"></textarea>
+          <div style="margin-top:6px">
+            <button class="btn reply-send">Send</button>
+            <button class="btn reply-cancel">Cancel</button>
+          </div>
+        `;
+        target.closest('.reply-actions').after(inputDiv);
+        inputDiv.querySelector('textarea').focus();
+      }
+
+      // send reply
+      if(target.classList.contains('reply-send')){
+        const inputDiv = target.closest('.reply-input');
+        const txt = inputDiv.querySelector('textarea').value.trim();
+        if(!txt) return alert('Write a reply first.');
+        const commentRoot = target.closest('[style*="border-bottom"]');
+        const repliesDiv = commentRoot.querySelector('.replies');
+        const r = document.createElement('div');
+        r.className = 'reply';
+        r.innerHTML = `<strong>Doctor:</strong> ${escapeHtml(txt)}`;
+        repliesDiv.appendChild(r);
+        inputDiv.remove();
+      }
+
+      // cancel reply
+      if(target.classList.contains('reply-cancel')){
+        const inputDiv = target.closest('.reply-input');
+        if(inputDiv) inputDiv.remove();
+      }
+    });
+
+    function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // Controls
+    document.getElementById('randomBtn').addEventListener('click', ()=>{
+      frames = [];
+      for(let i=0;i<NUM_FRAMES;i++) frames.push(randomFrame());
+      frameIdx = 0;
+      updateUI();
+      threadsEl.innerHTML = '';
+    });
+
+    document.getElementById('playBtn').addEventListener('click', ()=>{
+      playing = !playing;
+      document.getElementById('playBtn').textContent = playing ? 'Pause' : 'Play';
+      if(playing){
+        playTimer = setInterval(()=>{ frameIdx = (frameIdx+1) % frames.length; updateUI(); }, 500);
+      } else {
+        clearInterval(playTimer);
+      }
+    });
+
+    slider.addEventListener('input', (e) => { frameIdx = parseInt(e.target.value, 10); updateUI(); });
+
+    // initialize page
+    document.getElementById('randomBtn').click();
+    updateUI();
+
+    </script>
+</body>
+</html>
